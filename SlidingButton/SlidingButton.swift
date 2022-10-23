@@ -1,14 +1,18 @@
 import UIKit
 
-public class SlidingButton: UIView {
+public class SlidingButton: UIView, UIScrollViewDelegate {
     private let actionCirclePadding: CGFloat = 10
     private let trailingLabelPadding: CGFloat = 22
+    private let slideInertiaTime: CGFloat = 0.02
     
     private var progress: CGFloat = 0
     
+    let scrollView = UIScrollView()
     let slidingView = UIView()
     let actionCircle = UIView()
     let trailingLabel = UILabel()
+    
+    public var onTap: (() -> Void)?
     
     public init() {
         super.init(frame: .zero)
@@ -29,6 +33,11 @@ public class SlidingButton: UIView {
         CGSize(width: 400, height: 66)
     }
     
+    public func setTrailingLabelText(_ text: String) {
+        trailingLabel.text = text
+        relayoutTrailingLabel()
+    }
+    
     private func setup() {
         resetOnLayout()
         
@@ -36,11 +45,16 @@ public class SlidingButton: UIView {
         backgroundColor = UIColor(white: 46 / 255, alpha: 1)
         
         self.addSubview(trailingLabel)
-        trailingLabel.text = "Buy Now"
         trailingLabel.textColor = .white
         trailingLabel.font = .systemFont(ofSize: 17, weight: .semibold)
         
-        addSubview(slidingView)
+        addSubview(scrollView)
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.showsVerticalScrollIndicator = false
+        scrollView.decelerationRate = .normal
+        scrollView.delegate = self
+        
+        scrollView.addSubview(slidingView)
         slidingView.backgroundColor = UIColor(
             red: 76 / 255,
             green: 255 / 255,
@@ -49,9 +63,6 @@ public class SlidingButton: UIView {
         
         slidingView.addSubview(actionCircle)
         actionCircle.backgroundColor = .white
-        
-        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(onPan))
-        slidingView.addGestureRecognizer(panGesture)
     }
     
     private func resetOnLayout() {
@@ -59,11 +70,14 @@ public class SlidingButton: UIView {
         
         let actionCircleHeight = self.actionCircleHeight
         
+        scrollView.frame = bounds
+        slidingView.frame = bounds
+        
+        scrollView.contentSize = CGSize(width: bounds.width + slideViewInsetIdleRightInset,
+                                        height: bounds.height)
+        scrollView.setContentOffset(CGPoint(x: slideViewInsetIdleRightInset, y: 0), animated: false)
+        
         slidingView.layer.cornerRadius = bounds.height / 2
-        slidingView.frame = CGRect(x: slidingViewMinimumX,
-                                   y: 0,
-                                   width: bounds.width,
-                                   height: bounds.height)
         actionCircle.frame = CGRect(
             x: slidingView.bounds.width - actionCirclePadding - actionCircleHeight,
             y: actionCirclePadding,
@@ -71,73 +85,57 @@ public class SlidingButton: UIView {
             height: actionCircleHeight)
         actionCircle.layer.cornerRadius = actionCircleHeight / 2
         
+        relayoutTrailingLabel()
+    }
+    
+    private func relayoutTrailingLabel() {
         let trailingLabelIntrinsic = trailingLabel.intrinsicContentSize
+        
         trailingLabel.frame = CGRect(x: bounds.width - trailingLabelPadding - trailingLabelIntrinsic.width,
                                      y: bounds.height / 2 - trailingLabelIntrinsic.height / 2,
                                      width: trailingLabelIntrinsic.width,
                                      height: trailingLabelIntrinsic.height)
     }
     
-    private func setProgress(_ progress: CGFloat) {
-        self.progress = progress
-        
-        let minPoint = slidingViewMinimumX
-        let maxPoint: CGFloat = 0
-        slidingView.frame.origin.x = progress * (maxPoint - minPoint) + minPoint
-    }
-    
-    @objc private func onPan(_ sender: UIPanGestureRecognizer) {
-        switch sender.state {
-        case .changed:
-            let translation = sender.translation(in: self)
-            
-            let maxValue = bounds.width / 2
-            let minValue: CGFloat = 0
-            
-            let progress = (translation.x - minValue) / maxValue + minValue
-            let clampedProgress: CGFloat
-            if progress < 0 {
-                clampedProgress = 0
-            } else if progress > 1 {
-                clampedProgress = 1
-            } else {
-                clampedProgress = progress
-            }
-            setProgress(clampedProgress)
-        case .possible:
-            break
-        case .began:
-            break
-        case .ended:
-            resetToMinPosition(animated: true)
-        case .cancelled:
-            resetToMinPosition(animated: true)
-        case .failed:
-            break
-        @unknown default:
-            break
-        }
-    }
-    
-    private var slidingViewMinimumX: CGFloat {
-        -bounds.width / 2 + actionCircleHeight / 2 + actionCirclePadding
+    private var slideViewInsetIdleRightInset: CGFloat {
+        return (bounds.width / 2 - actionCircleHeight / 2 - actionCirclePadding)
     }
     
     private var actionCircleHeight: CGFloat {
         bounds.height - actionCirclePadding * 2
     }
     
-    private func resetToMinPosition(animated: Bool) {
-        if animated {
-            UIView.animate(withDuration: 0.25, delay: 0, options: [], animations: { [weak self] in
-                self?.resetToMinPosition()
-            }, completion: nil)
+    public func scrollViewWillEndDragging(_ scrollView: UIScrollView,
+                                          withVelocity velocity: CGPoint,
+                                          targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+        let minValue: CGFloat = 0
+        let maxValue: CGFloat = slideViewInsetIdleRightInset
+        
+        let originalTargetContentOffset = targetContentOffset.pointee
+        
+        let progress = (originalTargetContentOffset.x - minValue) / (maxValue - minValue)
+        
+        if progress > 0.5 {
+            targetContentOffset.pointee = CGPoint(x: maxValue, y: originalTargetContentOffset.y)
         } else {
-            resetToMinPosition()
+            targetContentOffset.pointee = CGPoint(x: minValue, y: originalTargetContentOffset.y)
+            onTap?()
         }
     }
     
-    private func resetToMinPosition() {
-        slidingView.frame.origin.x = slidingViewMinimumX
+    public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        scrollView.setContentOffset(CGPoint(x: slideViewInsetIdleRightInset, y: 0), animated: true)
     }
+}
+
+private func clamping(_ val: CGFloat, lower: CGFloat, upper: CGFloat) -> CGFloat {
+    let clampedProgress: CGFloat
+    if val < lower {
+        clampedProgress = lower
+    } else if val > upper {
+        clampedProgress = upper
+    } else {
+        clampedProgress = val
+    }
+    return clampedProgress
 }

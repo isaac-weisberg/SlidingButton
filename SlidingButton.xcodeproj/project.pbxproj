@@ -15,6 +15,7 @@
 		A3595B3B29031955001C4C83 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A3595B3929031955001C4C83 /* LaunchScreen.storyboard */; };
 		A3595B4129031979001C4C83 /* SlidingButton.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A3595B1C29031922001C4C83 /* SlidingButton.framework */; };
 		A3595B4229031979001C4C83 /* SlidingButton.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = A3595B1C29031922001C4C83 /* SlidingButton.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		A3F1F2B229053E1300A03434 /* CartViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3F1F2B129053E1300A03434 /* CartViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +52,7 @@
 		A3595B3729031955001C4C83 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A3595B3A29031955001C4C83 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		A3595B3C29031955001C4C83 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A3F1F2B129053E1300A03434 /* CartViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,6 +110,7 @@
 				A3595B3729031955001C4C83 /* Assets.xcassets */,
 				A3595B3929031955001C4C83 /* LaunchScreen.storyboard */,
 				A3595B3C29031955001C4C83 /* Info.plist */,
+				A3F1F2B129053E1300A03434 /* CartViewController.swift */,
 			);
 			path = SlidingButtonTest;
 			sourceTree = "<group>";
@@ -241,6 +244,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A3595B3329031953001C4C83 /* ViewController.swift in Sources */,
+				A3F1F2B229053E1300A03434 /* CartViewController.swift in Sources */,
 				A3595B2F29031953001C4C83 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

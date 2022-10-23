@@ -1,10 +1,3 @@
-//
-//  ViewController.swift
-//  SlidingButtonTest
-//
-//  Created by a.vaysberg on 10/22/22.
-//
-
 import UIKit
 import SlidingButton
 
@@ -13,6 +6,7 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         view.addSubview(slidingButton)
         
         slidingButton.translatesAutoresizingMaskIntoConstraints = false
@@ -21,6 +15,13 @@ class ViewController: UIViewController {
             slidingButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             slidingButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -32),
         ])
+        slidingButton.setTrailingLabelText("Buy Now")
+        
+        slidingButton.onTap = { [unowned self] in
+            let cartViewController = CartViewController()
+            
+            self.present(cartViewController, animated: true)
+        }
     }
 }
 

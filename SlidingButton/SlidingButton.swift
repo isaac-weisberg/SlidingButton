@@ -24,16 +24,27 @@ public class SlidingButton: UIView, UIScrollViewDelegate {
         fatalError("init(coder:) has not been implemented")
     }
     
-    public override func layoutSubviews() {
-        super.layoutSubviews()
-        resetOnLayout()
+    public override var bounds: CGRect {
+        didSet {
+            resetOnLayout()
+        }
     }
     
     public override var intrinsicContentSize: CGSize {
         CGSize(width: 400, height: 66)
     }
     
-    public func setTrailingLabelText(_ text: String) {
+    public func setTrailingLabelText(_ text: String, animated: Bool) {
+        if animated {
+            UIView.transition(with: trailingLabel, duration: 0.25, options: .transitionCrossDissolve, animations: { [weak self] in
+                self?.setTrailingLabelText(text)
+            }, completion: nil)
+        } else {
+            self.setTrailingLabelText(text)
+        }
+    }
+    
+    func setTrailingLabelText(_ text: String) {
         trailingLabel.text = text
         relayoutTrailingLabel()
     }

@@ -2,25 +2,37 @@ import UIKit
 import SlidingButton
 
 class ViewController: UIViewController {
-    let slidingButton = SlidingButton()
+    let buyButton = SlidingButton()
+    
+    let addToCardButton = SlidingButton()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.addSubview(slidingButton)
-        
-        slidingButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(buyButton)
+        buyButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            slidingButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            slidingButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            slidingButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -32),
+            buyButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            buyButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            buyButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -32),
         ])
-        slidingButton.setTrailingLabelText("Buy Now")
-        
-        slidingButton.onTap = { [unowned self] in
+        buyButton.setTrailingLabelText("Buy Now", animated: false)
+        buyButton.onTap = { [unowned self] in
             let cartViewController = CartViewController()
             
             self.present(cartViewController, animated: true)
+        }
+        
+        view.addSubview(addToCardButton)
+        addToCardButton.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            addToCardButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            addToCardButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            addToCardButton.bottomAnchor.constraint(equalTo: buyButton.topAnchor, constant: -16),
+        ])
+        addToCardButton.setTrailingLabelText("Add To Cart", animated: false)
+        addToCardButton.onTap = { [unowned self] in
+            addToCardButton.setTrailingLabelText("In Cart!", animated: true)
         }
     }
 }

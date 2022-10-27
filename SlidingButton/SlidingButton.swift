@@ -38,7 +38,7 @@ public struct SlidingButtonStyle {
 public class SlidingButton: UIView, UIScrollViewDelegate {
     private let actionCirclePadding: CGFloat = 10
     private let trailingLabelPadding: CGFloat = 22
-    private let slideInertiaTime: CGFloat = 0.02
+    private let animationDuration: TimeInterval = 0.25
     
     public private(set) var actionCircleImageInsets: UIEdgeInsets = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
     public private(set) var style: SlidingButtonStyle
@@ -83,7 +83,7 @@ public class SlidingButton: UIView, UIScrollViewDelegate {
     
     public func setTrailingLabelText(_ text: String, animated: Bool) {
         if animated {
-            UIView.transition(with: trailingLabel, duration: 0.25, options: .transitionCrossDissolve, animations: { [weak self] in
+            UIView.transition(with: trailingLabel, duration: animationDuration, options: .transitionCrossDissolve, animations: { [weak self] in
                 self?.setTrailingLabelText(text)
             }, completion: nil)
         } else {
@@ -94,7 +94,7 @@ public class SlidingButton: UIView, UIScrollViewDelegate {
     public func setStyle(_ style: SlidingButtonStyle, animated: Bool) {
         self.style = style
         if animated {
-            UIView.animate(withDuration: 0.25, delay: 0, options: [], animations: { [weak self] in
+            UIView.animate(withDuration: animationDuration, delay: 0, options: [], animations: { [weak self] in
                 self?.setStyle(style)
             }, completion: nil)
         } else {

@@ -22,6 +22,7 @@ class ViewController: UIViewController {
             
             self.present(cartViewController, animated: true)
         }
+        buyButton.setActionCircleImage(UIImage(named: "arrow-right")!)
         
         view.addSubview(addToCardButton)
         addToCardButton.translatesAutoresizingMaskIntoConstraints = false
@@ -34,6 +35,7 @@ class ViewController: UIViewController {
         addToCardButton.onTap = { [unowned self] in
             addToCardButton.setTrailingLabelText("In Cart!", animated: true)
         }
+        addToCardButton.setActionCircleImage(UIImage(named: "arrow-right")!)
     }
 }
 

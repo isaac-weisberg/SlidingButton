@@ -4,12 +4,14 @@ public class SlidingButton: UIView, UIScrollViewDelegate {
     private let actionCirclePadding: CGFloat = 10
     private let trailingLabelPadding: CGFloat = 22
     private let slideInertiaTime: CGFloat = 0.02
+    private let actionCircleImageInsets: UIEdgeInsets = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
     
     private var progress: CGFloat = 0
     
     let scrollView = UIScrollView()
     let slidingView = UIView()
     let actionCircle = UIView()
+    let actionCircleImageView = UIImageView()
     let trailingLabel = UILabel()
     
     public var onTap: (() -> Void)?
@@ -32,6 +34,10 @@ public class SlidingButton: UIView, UIScrollViewDelegate {
     
     public override var intrinsicContentSize: CGSize {
         CGSize(width: 400, height: 66)
+    }
+    
+    public func setActionCircleImage(_ image: UIImage) {
+        actionCircleImageView.image = image
     }
     
     public func setTrailingLabelText(_ text: String, animated: Bool) {
@@ -74,6 +80,14 @@ public class SlidingButton: UIView, UIScrollViewDelegate {
         
         slidingView.addSubview(actionCircle)
         actionCircle.backgroundColor = .white
+        
+        actionCircleImageView.contentMode = .scaleAspectFit
+        actionCircle.addSubview(actionCircleImageView)
+        actionCircleImageView.tintColor = UIColor(
+            red: 76 / 255,
+            green: 255 / 255,
+            blue: 103 / 255,
+            alpha: 1)
     }
     
     private func resetOnLayout() {
@@ -95,6 +109,11 @@ public class SlidingButton: UIView, UIScrollViewDelegate {
             width: actionCircleHeight,
             height: actionCircleHeight)
         actionCircle.layer.cornerRadius = actionCircleHeight / 2
+        
+        actionCircleImageView.frame = CGRect(x: actionCircleImageInsets.left,
+                                             y: actionCircleImageInsets.top,
+                                             width: actionCircleHeight - actionCircleImageInsets.left - actionCircleImageInsets.right,
+                                             height: actionCircleHeight - actionCircleImageInsets.top - actionCircleImageInsets.bottom)
         
         relayoutTrailingLabel()
     }

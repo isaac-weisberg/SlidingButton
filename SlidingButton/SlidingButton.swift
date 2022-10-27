@@ -1,12 +1,47 @@
 import UIKit
 
+public struct SlidingButtonStyle {
+    public let backgroundColor: UIColor
+    public let slidingViewColor: UIColor
+    public let actionCircleColor: UIColor
+    public let actionCircleImageTint: UIColor
+    public let trailingLabelTextColor: UIColor
+    
+    public init(backgroundColor: UIColor,
+                slidingViewColor: UIColor,
+                actionCircleColor: UIColor,
+                actionCircleImageTint: UIColor,
+                trailingLabelTextColor: UIColor) {
+        self.backgroundColor = backgroundColor
+        self.slidingViewColor = slidingViewColor
+        self.actionCircleColor = actionCircleColor
+        self.actionCircleImageTint = actionCircleImageTint
+        self.trailingLabelTextColor = trailingLabelTextColor
+    }
+    
+    public static func springGreen() -> SlidingButtonStyle {
+        let middleWashedSpringGreen = UIColor(
+            red: 76 / 255,
+            green: 255 / 255,
+            blue: 103 / 255,
+            alpha: 1)
+        let white = UIColor.white
+        let backgroundDark = UIColor(white: 46 / 255, alpha: 1)
+        return SlidingButtonStyle(backgroundColor: backgroundDark,
+                           slidingViewColor: middleWashedSpringGreen,
+                           actionCircleColor: white,
+                           actionCircleImageTint: middleWashedSpringGreen,
+                           trailingLabelTextColor: white)
+    }
+}
+
 public class SlidingButton: UIView, UIScrollViewDelegate {
     private let actionCirclePadding: CGFloat = 10
     private let trailingLabelPadding: CGFloat = 22
     private let slideInertiaTime: CGFloat = 0.02
-    private let actionCircleImageInsets: UIEdgeInsets = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
     
-    private var progress: CGFloat = 0
+    public private(set) var actionCircleImageInsets: UIEdgeInsets = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
+    public private(set) var style: SlidingButtonStyle
     
     let scrollView = UIScrollView()
     let slidingView = UIView()
@@ -16,7 +51,8 @@ public class SlidingButton: UIView, UIScrollViewDelegate {
     
     public var onTap: (() -> Void)?
     
-    public init() {
+    public init(style: SlidingButtonStyle = .springGreen()) {
+        self.style = style
         super.init(frame: .zero)
         
         setup()
@@ -40,6 +76,11 @@ public class SlidingButton: UIView, UIScrollViewDelegate {
         actionCircleImageView.image = image
     }
     
+    public func setActionCircleImageInsets(_ insets: UIEdgeInsets) {
+        actionCircleImageInsets = insets
+        relayoutCircleImageView()
+    }
+    
     public func setTrailingLabelText(_ text: String, animated: Bool) {
         if animated {
             UIView.transition(with: trailingLabel, duration: 0.25, options: .transitionCrossDissolve, animations: { [weak self] in
@@ -50,19 +91,38 @@ public class SlidingButton: UIView, UIScrollViewDelegate {
         }
     }
     
-    func setTrailingLabelText(_ text: String) {
+    public func setStyle(_ style: SlidingButtonStyle, animated: Bool) {
+        self.style = style
+        if animated {
+            UIView.animate(withDuration: 0.25, delay: 0, options: [], animations: { [weak self] in
+                self?.setStyle(style)
+            }, completion: nil)
+        } else {
+            self.setStyle(style)
+        }
+    }
+    
+    private func setTrailingLabelText(_ text: String) {
         trailingLabel.text = text
         relayoutTrailingLabel()
     }
     
+    private func setStyle(_ style: SlidingButtonStyle) {
+        self.backgroundColor = style.backgroundColor
+        self.slidingView.backgroundColor = style.slidingViewColor
+        self.actionCircle.backgroundColor = style.actionCircleColor
+        self.actionCircleImageView.tintColor = style.actionCircleImageTint
+        self.trailingLabel.textColor = style.trailingLabelTextColor
+    }
+    
     private func setup() {
+        setStyle(self.style)
+        
         resetOnLayout()
         
         self.clipsToBounds = true
-        backgroundColor = UIColor(white: 46 / 255, alpha: 1)
         
         self.addSubview(trailingLabel)
-        trailingLabel.textColor = .white
         trailingLabel.font = .systemFont(ofSize: 17, weight: .semibold)
         
         addSubview(scrollView)
@@ -72,22 +132,12 @@ public class SlidingButton: UIView, UIScrollViewDelegate {
         scrollView.delegate = self
         
         scrollView.addSubview(slidingView)
-        slidingView.backgroundColor = UIColor(
-            red: 76 / 255,
-            green: 255 / 255,
-            blue: 103 / 255,
-            alpha: 1)
         
         slidingView.addSubview(actionCircle)
         actionCircle.backgroundColor = .white
         
         actionCircleImageView.contentMode = .scaleAspectFit
         actionCircle.addSubview(actionCircleImageView)
-        actionCircleImageView.tintColor = UIColor(
-            red: 76 / 255,
-            green: 255 / 255,
-            blue: 103 / 255,
-            alpha: 1)
     }
     
     private func resetOnLayout() {
@@ -110,10 +160,7 @@ public class SlidingButton: UIView, UIScrollViewDelegate {
             height: actionCircleHeight)
         actionCircle.layer.cornerRadius = actionCircleHeight / 2
         
-        actionCircleImageView.frame = CGRect(x: actionCircleImageInsets.left,
-                                             y: actionCircleImageInsets.top,
-                                             width: actionCircleHeight - actionCircleImageInsets.left - actionCircleImageInsets.right,
-                                             height: actionCircleHeight - actionCircleImageInsets.top - actionCircleImageInsets.bottom)
+        relayoutCircleImageView()
         
         relayoutTrailingLabel()
     }
@@ -125,6 +172,14 @@ public class SlidingButton: UIView, UIScrollViewDelegate {
                                      y: bounds.height / 2 - trailingLabelIntrinsic.height / 2,
                                      width: trailingLabelIntrinsic.width,
                                      height: trailingLabelIntrinsic.height)
+    }
+    
+    private func relayoutCircleImageView() {
+        let actionCircleHeight = self.actionCircleHeight
+        actionCircleImageView.frame = CGRect(x: actionCircleImageInsets.left,
+                                             y: actionCircleImageInsets.top,
+                                             width: actionCircleHeight - actionCircleImageInsets.left - actionCircleImageInsets.right,
+                                             height: actionCircleHeight - actionCircleImageInsets.top - actionCircleImageInsets.bottom)
     }
     
     private var slideViewInsetIdleRightInset: CGFloat {
